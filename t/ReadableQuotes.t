@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use App::PerlNitpick::Rule::ReadableQuotes ();
-use Test2::V0 qw( done_testing is );
+use Test2::V0                              qw( done_testing is );
 
 my @tests = (
     [ '"foo"',             q{'foo'} ],
@@ -14,8 +14,15 @@ my @tests = (
     [ 'q{ \' }',           'q{ \' }' ],
     [ 'q{report\'s name}', 'q{report\'s name}' ],
     [ q{''},               'q{}' ],
+    [ q/'"{'/,               'q["{]'],
     [ q{"\n"},             q{"\n"} ],
     [ q{print "riho";},    q{print 'riho';} ],
+    [
+        q{Path::Tiny->tempdir("testconfigXXXXXXXX");},
+        q{Path::Tiny->tempdir('testconfigXXXXXXXX');}
+    ],
+    [ '"\x{1f42a}"', '"\x{1f42a}"' ],    # remains unchanged
+    [ '"\0"',        '"\0"' ],           # remains unchanged
 
     # Multiline strings. String literal newline characetrs.
     [

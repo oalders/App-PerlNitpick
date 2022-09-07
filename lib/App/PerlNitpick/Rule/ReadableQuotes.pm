@@ -82,12 +82,12 @@ sub rewrite {
 
         # I probably know what I am doing.
         my $value = $tok->string;
-        next if $value =~ m{\\n} || $value =~ m{\n};
-        if ( $value =~ m{["']} ) {
-            $tok->{content} = sprintf( 'q{%s}', $tok->string );
-        }
-        elsif ( $value =~ m{\A\s+\z} || $value eq q{} ) {
-            $tok->{content} = sprintf( 'q{%s}', $tok->string );
+        next if $value =~ m{(?:\\n|[\n]|\\x|\\0)};
+
+        my @delimiters = ('{', '}');
+
+        if ( $value =~ m{["']} || $value =~ m{\A\s+\z} || $value eq q{} ) {
+            $tok->{content} = _requote($tok->string, @delimiters );
         }
         else {
             $tok->{content} = sprintf( q{'%s'}, $tok->string );
@@ -96,6 +96,14 @@ sub rewrite {
     }
 
     return $doc;
+}
+
+sub _requote {
+    my ($string, @delimiters, ) = @_;
+    if ( $string =~ m/[{}]/ ) {
+        @delimiters = ( '[', ']' );
+    }
+    return sprintf( q/q%s%s%s/, $delimiters[0], $string, $delimiters[1]);
 }
 
 1;
